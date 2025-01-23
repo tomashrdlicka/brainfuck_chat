@@ -1,0 +1,10 @@
+,               ; Read the sender ID into Cell 0
+[->+<]          ; Copy Cell 0 (Sender ID) to Cell 1
+>               ; Move to Cell 1
++[-<+]-         ; Toggle Sender ID: if 1, becomes 2; if 2, becomes 1
+<               ; Move back to Cell 0
+,[              ; Start reading the message
+  >.            ; Output the target ID (Cell 1)
+  <.            ; Output the message character
+  ,             ; Read the next character
+]

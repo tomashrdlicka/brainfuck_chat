@@ -1,0 +1,6 @@
+4. Debugging Brainfuck Programs
+Debugging Brainfuck code can be tricky. Use these tools:
+
+TIO.run (with debugging features): Step through your code and view memory changes.
+Brainfuck Debugger: bfi is a lightweight Brainfuck interpreter with debugging features:
+
