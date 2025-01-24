@@ -18,7 +18,7 @@ class DualBrainfuckInterpreter:
         # Filter the code to include only valid commands
         filtered_code = []
         i = 0
-
+        
         while i < len(self.code):
             if self.code[i] in valid_bf_commands or self.code[i] in valid_custom_commands:
                 filtered_code.append(self.code[i])
@@ -37,7 +37,8 @@ class DualBrainfuckInterpreter:
 
         while self.ip < len(self.code):
             cmd = self.code[self.ip]
-            #print(f"Executing command: {cmd}")
+            
+            #self.debug_print_state(cmd=cmd)
 
             # Socket management commands
             if cmd == "|":  # Open a socket
@@ -58,28 +59,47 @@ class DualBrainfuckInterpreter:
                     self.conn, addr = self.socket.accept()
                     print(f"Accepted connection from {addr}")
 
-            elif cmd == "§":  # Send data (server-side)
-                if self.conn:
-                    print("Executing: Send data")
+            elif cmd == "*":  # Receive data
+                if self.conn:  # Use the connection object for receiving data
+                    print("Executing: Receive data")
+                    try:
+                        received_data = self.conn.recv(1024)  # Buffer size is 1024 bytes
+                        if received_data:
+                            received_char = received_data.decode('utf-8')[0]
+                            print(f"Received data: {received_char}")
+                            self.cells[self.pointer] = ord(received_char)
+                        else:
+                            print("Connection closed by client.")
+                            self.cells[self.pointer] = 0
+                    except ConnectionResetError:
+                        print("Connection reset by client.")
+                        self.cells[self.pointer] = 0
+                elif self.socket:  # Client-side receive
+                    print("Executing: Receive data (client)")
+                    try:
+                        received_data = self.socket.recv(1024)
+                        if received_data:
+                            received_char = received_data.decode('utf-8')[0]
+                            print(f"Received data: {received_char}")
+                            self.cells[self.pointer] = ord(received_char)
+                        else:
+                            print("Connection closed by server.")
+                            self.cells[self.pointer] = 0
+                    except ConnectionResetError:
+                        print("Connection reset by server.")
+                        self.cells[self.pointer] = 0
+
+            elif cmd == "§":  # Send data
+                if self.conn:  # Server-side send
+                    print("Executing: Send data (server)")
                     data_to_send = chr(self.cells[self.pointer])
                     self.conn.sendall(data_to_send.encode('utf-8'))
-                    print(f"Sent data: {data_to_send}")
-                    
-                    print("Resetting state after send...")
-                    self.pointer = 0
-                    self.cells = [0] * len(self.cells)  # Reset entire memory tape (or selectively reset)
-        
-
-
-            elif cmd == "*":  # Receive data (client-side)
-                if self.socket:
-                    print("Executing: Receive data")
-                    received_data = self.socket.recv(1024)  # Buffer size is 1024 bytes
-                    if received_data:
-                        print(f"Received data: {received_data.decode('utf-8')}")
-                        self.output += received_data.decode('utf-8')
-                    else:
-                        print("No data received.")
+                    print(f"Sent data: {data_to_send} (ASCII {self.cells[self.pointer]})")
+                elif self.socket:  # Client-side send
+                    print("Executing: Send data (client)")
+                    data_to_send = chr(self.cells[self.pointer])
+                    self.socket.sendall(data_to_send.encode('utf-8'))
+                    print(f"Sent data: {data_to_send} (ASCII {self.cells[self.pointer]})")
 
             elif cmd == "/":  # Close the socket
                 if self.conn:
@@ -118,6 +138,7 @@ class DualBrainfuckInterpreter:
             elif cmd == ",":
                 if self.input:
                     self.cells[self.pointer] = ord(self.input.pop(0))
+                    #print(self.input)
                 else:
                     self.cells[self.pointer] = 0  # EOF simulation
 
