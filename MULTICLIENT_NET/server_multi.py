@@ -11,7 +11,8 @@ brainfuck_code = """
 *                     # Receive data receiver
 >                     # Move to payload
 *                     # Receive data payload
-\                     # Accept connection from Client 2 (set conn2)
+§
+*
 §                     # Send data
 /                     # Close the socket
 """

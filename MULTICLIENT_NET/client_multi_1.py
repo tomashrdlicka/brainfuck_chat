@@ -15,6 +15,8 @@ brainfuck_client_code = """
 !                     #send data
 >                     #move to payload
 !                     #send data
+,                     #read payload
+!                     #send data
 /                     # Close the socket
 """
 

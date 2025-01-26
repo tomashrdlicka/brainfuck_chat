@@ -9,6 +9,9 @@ brainfuck_client_code = """
 |                     # Open a socket
 ~                     # Connect to the server
 *                     #receive data
+.
+*
+.
 /                     # Close the socket
 """
 
