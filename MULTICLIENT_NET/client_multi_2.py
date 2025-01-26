@@ -10,10 +10,22 @@ brainfuck_client_code = """
 ~                     # Connect to the server
 
 
-*
++
 [
-.    
-*
+*    
+.
+]
+
+<
+<
+!
+>
+!
+>
+,
+[
+!
+,
 ]
 
 

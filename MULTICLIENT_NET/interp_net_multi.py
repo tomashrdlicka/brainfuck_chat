@@ -11,6 +11,7 @@ class DualBrainfuckInterpreter:
         self.socket = None       # Socket object
         self.conn1 = None         # Connection object (server only)
         self.conn2 = None         # Connection object (server only)
+        self.current_connection = 1
     def run(self, input_data=""):
         valid_bf_commands = "><+-.,[]"  # Regular Brainfuck commands
         valid_custom_commands = "|~\\§*/!"  # Unified custom commands
@@ -54,40 +55,48 @@ class DualBrainfuckInterpreter:
 
             elif cmd == "*":  # Single BFS command to receive data (1 byte each time)
                 print("[Debug] BFS invoked '*' for receiving 1 byte of data.")
-
                 # 1) Server-side receive from conn1 (if it exists)
-                if self.conn1:
-                    print("[Debug] Attempting to read 1 byte from conn1 (Client 1).")
+                if self.current_connection == 1 and self.conn1:
+                    print("[Debug] Processing conn1 (Client 1).")
                     try:
-                        one_byte = self.conn1.recv(1)  # read exactly 1 byte
+                        one_byte = self.conn1.recv(1)  # Read exactly 1 byte from conn1
                         if one_byte:
-                            c = int(one_byte[0])  # get the numeric byte
+                            c = int(one_byte[0])
                             print(f"[Debug] Server (conn1) received one byte: {c} (chr={chr(c)!r})")
                             self.cells[self.pointer] = c
                             print(f"[Debug] Stored ASCII {c} at cell[{self.pointer}].")
+                            if c == 0:
+                                print("[Debug] Switching to conn2 (Client 2) as conn1 sent 0.")
+                                self.current_connection = 2  # Switch to conn2
                         else:
                             print("[Debug] No data from conn1 (Client 1) - possibly closed.")
                             self.cells[self.pointer] = 0
+                            break
                     except ConnectionResetError:
-                        print("[Debug] Connection reset by Client 1 (server side).")
+                        print("[Debug] Connection reset by Client 1.")
                         self.cells[self.pointer] = 0
+                        break
 
-                # 2) Server-side receive from conn2 (if it exists)
-                elif self.conn2:
-                    print("[Debug] Attempting to read 1 byte from conn2 (Client 2).")
+                elif self.current_connection == 2 and self.conn2:
+                    print("[Debug] Processing conn2 (Client 2).")
                     try:
-                        one_byte = self.conn2.recv(1)  # read exactly 1 byte
+                        one_byte = self.conn2.recv(1)  # Read exactly 1 byte from conn2
                         if one_byte:
                             c = int(one_byte[0])
                             print(f"[Debug] Server (conn2) received one byte: {c} (chr={chr(c)!r})")
                             self.cells[self.pointer] = c
                             print(f"[Debug] Stored ASCII {c} at cell[{self.pointer}].")
+                            if c == 0:
+                                print("[Debug] Switching to conn1 (Client 1) as conn2 sent 0.")
+                                self.current_connection = 1  # Switch to conn1
                         else:
                             print("[Debug] No data from conn2 (Client 2) - possibly closed.")
                             self.cells[self.pointer] = 0
+                            break
                     except ConnectionResetError:
-                        print("[Debug] Connection reset by Client 2 (server side).")
+                        print("[Debug] Connection reset by Client 2.")
                         self.cells[self.pointer] = 0
+                        break
 
                 # 3) Client-side receive using self.socket
                 elif self.socket:
@@ -119,10 +128,10 @@ class DualBrainfuckInterpreter:
                 receiver = self.cells[1]  # Receiver identifier
                 payload = chr(self.cells[self.pointer])  # Data to send
 
-                if receiver == 1 and self.conn1:
+                if receiver == 1:
                     print(f"Debug: Sending '{payload}' from Client {sender} to Client {receiver}")
                     self.conn1.sendall(payload.encode('utf-8'))
-                elif receiver == 2 and self.conn2:
+                elif receiver == 2:
                     print(f"Debug: Sending '{payload}' from Client {sender} to Client {receiver}")
                     self.conn2.sendall(payload.encode('utf-8'))
                             

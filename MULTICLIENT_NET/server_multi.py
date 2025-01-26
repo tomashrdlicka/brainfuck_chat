@@ -17,6 +17,21 @@ brainfuck_code = """
 §
 *
 ]
+§
+
+
+    
+<
+<
+*
+>
+*
+>
+*
+[
+§
+*
+]
 
 /                     # Close the socket
 """

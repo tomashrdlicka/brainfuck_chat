@@ -21,6 +21,17 @@ brainfuck_client_code = """
 ,
 ]
 
+>
+!
+<
+
+
++
+[
+.
+*
+]
+
 
 /                     # Close the socket
 """
