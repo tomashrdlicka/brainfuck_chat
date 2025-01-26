@@ -38,7 +38,7 @@ class DualBrainfuckInterpreter:
         while self.ip < len(self.code):
             cmd = self.code[self.ip]
             
-            #self.debug_print_state(cmd=cmd)
+            self.debug_print_state(cmd=cmd)
 
             # Socket management commands
             if cmd == "|":  # Open a socket

@@ -4,7 +4,7 @@ from bf_interpreter_net import DualBrainfuckInterpreter
 # The server opens a socket, accepts a client connection, and sends "Hi!"
 brainfuck_code = """
 |                     # Open a socket
-\                     # Accept a client connection
+\                     # Accept a client connection (client 1)
 *                     # Receive data
 .                     # Print the received data
 [                     # Loop until the cell at the pointer is 0
