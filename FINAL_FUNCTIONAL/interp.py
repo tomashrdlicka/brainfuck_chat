@@ -1,6 +1,6 @@
 import socket
 
-class DualBrainfuckInterpreter:
+class BrainfuckInterpreter:
     def __init__(self, code):
         self.code = code
         self.cells = [0] * 30000  # Memory tape
@@ -43,19 +43,19 @@ class DualBrainfuckInterpreter:
 
             # Socket management commands
             if cmd == "|":  # Open a socket
-                print("Executing: Open socket")
+                #print("Executing: Open socket")
                 self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
                 self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1) 
 
             elif cmd == "~":  # Connect to server (client-side)
                 if self.socket:
-                    print("Executing: Connect to server")
+                    #print("Executing: Connect to server")
                     self.socket.connect(('localhost', 12345))
-                    print("Connected to the server!")
+                    #print("Connected to the server!")
                     
 
             elif cmd == "*":  # Single BFS command to receive data (1 byte each time)
-                print("[Debug] BFS invoked '*' for receiving 1 byte of data.")
+                #print("[Debug] BFS invoked '*' for receiving 1 byte of data.")
                 # 1) Server-side receive from conn1 (if it exists)
                 if self.current_connection == 1 and self.conn1:
                     print("[Debug] Processing conn1 (Client 1).")
@@ -74,7 +74,7 @@ class DualBrainfuckInterpreter:
                             self.cells[self.pointer] = 0
                             break
                     except ConnectionResetError:
-                        print("[Debug] Connection reset by Client 1.")
+                        #print("[Debug] Connection reset by Client 1.")
                         self.cells[self.pointer] = 0
                         break
 
@@ -101,14 +101,14 @@ class DualBrainfuckInterpreter:
 
                 # 3) Client-side receive using self.socket
                 elif self.socket:
-                    print("[Debug] Detected client-side receive (self.socket is not None).")
+                    #print("[Debug] Detected client-side receive (self.socket is not None).")
                     try:
                         one_byte = self.socket.recv(1)  # read exactly 1 byte
                         if one_byte:
                             c = int(one_byte[0])
-                            print(f"[Debug] Client received one byte: {c} (chr={chr(c)!r})")
+                            #print(f"[Debug] Client received one byte: {c} (chr={chr(c)!r})")
                             self.cells[self.pointer] = c
-                            print(f"[Debug] Stored ASCII {c} at cell[{self.pointer}].")
+                            #print(f"[Debug] Stored ASCII {c} at cell[{self.pointer}].")
                         else:
                             print("[Debug] No data received from the server (connection closed?).")
                             self.cells[self.pointer] = 0
@@ -130,28 +130,28 @@ class DualBrainfuckInterpreter:
                 payload = chr(self.cells[self.pointer])  # Data to send
 
                 if receiver == 1:
-                    print(f"Debug: Sending '{payload}' from Client {sender} to Client {receiver}")
+                    #print(f"Debug: Sending '{payload}' from Client {sender} to Client {receiver}")
                     self.conn1.sendall(payload.encode('utf-8'))
                 elif receiver == 2:
-                    print(f"Debug: Sending '{payload}' from Client {sender} to Client {receiver}")
+                    #print(f"Debug: Sending '{payload}' from Client {sender} to Client {receiver}")
                     self.conn2.sendall(payload.encode('utf-8'))
                             
             #client side send data
             elif cmd == "!":  # Client-side single cell send
-                print("Executing: Client-side single cell send")
+                #print("Executing: Client-side single cell send")
                 # Retrieve the payload from the current pointer
                 payload = chr(self.cells[self.pointer])  # Data to send (single character) 
                 # Ensure we have a valid socket to send data
                 if self.socket:
                     try:
                         # Debug: Show the payload being sent
-                        print(f"[Debug] Sending single-cell data: '{payload}' (ASCII: {ord(payload)})")
+                        #print(f"[Debug] Sending single-cell data: '{payload}' (ASCII: {ord(payload)})")
 
                         # Send the single character payload
                         self.socket.sendall(payload.encode('utf-8'))
 
                         # Debug: Confirm the payload was sent
-                        print(f"[Debug] Single-cell data successfully sent: '{payload}'")
+                        #print(f"[Debug] Single-cell data successfully sent: '{payload}'")
                     except BrokenPipeError:
                         # Handle case where the server is not available
                         print("[Debug] Failed to send data. Broken pipe (server might be down).")
@@ -170,7 +170,7 @@ class DualBrainfuckInterpreter:
                         self.socket.bind(('localhost', 12345))  # Bind server to port 12345
                         self.socket.listen(2)  # Allow up to 2 queued connections
                         self.conn1, addr1 = self.socket.accept()  # Accept the first client
-                        print(f"Client 1 connected from {addr1}")
+                        #print(f"Client 1 connected from {addr1}")
                     elif not self.conn2:  # Accept second client
                         print("Waiting for Client 2 to connect...")
                         self.conn2, addr2 = self.socket.accept()  # Accept the second client
@@ -212,7 +212,8 @@ class DualBrainfuckInterpreter:
             elif cmd == ".":
                 char = chr(self.cells[self.pointer])
                 self.output += char
-                print(f"Output: {char} (ASCII {self.cells[self.pointer]})")
+                print(f"{char}")
+                
 
             elif cmd == ",":
                 if self.input:
@@ -248,7 +249,9 @@ class DualBrainfuckInterpreter:
             self.ip += 1
 
         return self.output
-
+    
+                
+        
     def debug_print_state(self, cmd):
         # Choose how many cells you want to see around the pointer
         debug_range = 5
