@@ -3,6 +3,8 @@ from interp_net_multi import DualBrainfuckInterpreter
 # Define the Brainfuck server program
 # The server opens a socket, accepts a client connection, and sends "Hi!"
 brainfuck_code = """
++
+[
 |                     # Open server socket
 \                     # Accept connection from Client 1 (set conn1)
 \                     # Accept connection from Client 2 (set conn2)
@@ -31,9 +33,13 @@ brainfuck_code = """
 [
 §
 *
+§
 ]
-
+<
+<
 /                     # Close the socket
++
+]
 """
 
 

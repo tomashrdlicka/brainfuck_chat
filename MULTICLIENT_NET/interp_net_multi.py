@@ -39,12 +39,13 @@ class DualBrainfuckInterpreter:
         while self.ip < len(self.code):
             cmd = self.code[self.ip]
             
-            self.debug_print_state(cmd=cmd)
+            #self.debug_print_state(cmd=cmd)
 
             # Socket management commands
             if cmd == "|":  # Open a socket
                 print("Executing: Open socket")
                 self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1) 
 
             elif cmd == "~":  # Connect to server (client-side)
                 if self.socket:
