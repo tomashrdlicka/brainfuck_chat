@@ -10,10 +10,14 @@ brainfuck_code = """
 >                     # Move to receiver
 *                     # Receive data receiver
 >                     # Move to payload
-*                     # Receive data payload
+
+
+*
+[
 §
 *
-§                     # Send data
+]
+
 /                     # Close the socket
 """
 

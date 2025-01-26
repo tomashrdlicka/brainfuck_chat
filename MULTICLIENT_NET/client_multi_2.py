@@ -8,10 +8,15 @@ brainfuck_client_code = """
 >                     #move pointer to payload
 |                     # Open a socket
 ~                     # Connect to the server
-*                     #receive data
-.
+
+
 *
-.
+[
+.    
+*
+]
+
+
 /                     # Close the socket
 """
 
